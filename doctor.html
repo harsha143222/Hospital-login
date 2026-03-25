@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Doctor Dashboard</title>
+<link rel="stylesheet" href="doctor.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+<h2>👨‍⚕️ Doctor Panel</h2>
+
+<ul>
+<li class="active">My Appointments</li>
+</ul>
+
+<button onclick="logout()" class="logout-btn">Logout</button>
+</aside>
+
+
+<!-- Main -->
+<main class="main-content">
+
+<h1>My Appointments</h1>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Patient</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="appointmentTable"></tbody>
+</table>
+
+
+<!-- 🚨 Emergency Section -->
+
+<h1 style="margin-top:40px;color:red;">🚨 Emergency Alerts</h1>
+
+<div id="emergencyBox" style="
+background:#330000;
+color:white;
+padding:20px;
+border-radius:10px;
+margin-top:10px;
+font-size:16px;
+">
+No Emergency Alerts
+</div>
+
+
+</main>
+
+<div id="doctorEmergency" style="
+background:red;
+color:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+display:none;">
+</div>
+
+</div>
+
+
+<script>
+
+// Get logged doctor name
+let doctorName = localStorage.getItem("loggedDoctor");
+
+// Get appointments
+let appointments = JSON.parse(localStorage.getItem("appointments")) || [];
+
+// Filter only this doctor's appointments
+let myAppointments = appointments.filter(app => app.doctor === doctorName);
+
+
+function loadAppointments(){
+
+let table = document.getElementById("appointmentTable");
+
+table.innerHTML = "";
+
+if(myAppointments.length === 0){
+
+table.innerHTML = "<tr><td colspan='5'>No Appointments</td></tr>";
+
+return;
+
+}
+
+myAppointments.forEach((app,index)=>{
+
+table.innerHTML += `
+<tr>
+<td>${app.date}</td>
+<td>${app.patient}</td>
+<td>₹${app.amount}</td>
+<td>${app.status}</td>
+<td>
+<button onclick="markComplete(${index})">
+Complete
+</button>
+</td>
+</tr>
+`;
+
+});
+
+}
+
+loadAppointments();
+
+
+// Mark as Completed
+function markComplete(index){
+
+let realIndex = appointments.findIndex(a =>
+
+a.doctor === doctorName &&
+a.patient === myAppointments[index].patient &&
+a.date === myAppointments[index].date
+
+);
+
+appointments[realIndex].status = "Completed";
+
+localStorage.setItem("appointments",JSON.stringify(appointments));
+
+location.reload();
+
+}
+
+
+// 🚨 Load Emergency Alert
+
+function checkEmergency(){
+
+let data = JSON.parse(localStorage.getItem("emergencyAlert"));
+let box = document.getElementById("doctorEmergency");
+
+if(!box) return;
+
+if(!data){
+box.style.display="none";
+return;
+}
+
+/* if another doctor already took it */
+
+if(data.status==="taken"){
+box.style.display="none";
+return;
+}
+
+box.style.display="block";
+
+box.innerHTML = `
+<h3>🚨 Emergency Case</h3>
+<p><b>Patient:</b> ${data.patient}</p>
+<p><b>Description:</b> ${data.description}</p>
+<p><b>Time:</b> ${data.time}</p>
+
+<button onclick="takeEmergency()">Take Emergency</button>
+`;
+
+}
+
+function takeEmergency(){
+
+let doctorName = localStorage.getItem("loggedDoctor");
+
+let data = JSON.parse(localStorage.getItem("emergencyAlert"));
+
+data.status = "taken";
+data.doctor = doctorName;
+
+localStorage.setItem("emergencyAlert", JSON.stringify(data));
+
+alert("You accepted the emergency");
+
+}
+
+setInterval(checkEmergency,2000);
+
+loadEmergency();
+
+
+// Logout
+function logout(){
+
+localStorage.removeItem("loggedDoctor");
+
+window.location.href="login.html";
+
+}
+
+</script>
+
+</body>
+</html>

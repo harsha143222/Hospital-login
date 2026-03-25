@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Chairman Control Panel</title>
+<link rel="stylesheet" href="chairman.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+<div class="collapse-btn" onclick="toggleSidebar()">☰</div>
+
+<div class="logo-section">
+<img src="logo.jpg" class="logo-img">
+<h3 class="sidebar-text">Hospital Admin</h3>
+</div>
+
+<div class="chairman-profile">
+<div class="profile-wrapper">
+<img src="chairman.jpg" class="chairman-img">
+<span class="online-dot"></span>
+</div>
+<p class="sidebar-text">Mr. Chairman</p>
+</div>
+
+<ul>
+
+<li onclick="showSection('dashboard',this)" class="active">
+<span class="sidebar-text">Dashboard</span>
+</li>
+
+<li onclick="showSection('doctors',this)">
+<span class="sidebar-text">Doctors</span>
+</li>
+
+<li onclick="showSection('patients',this)">
+<span class="sidebar-text">Patients</span>
+</li>
+
+<li onclick="showSection('payments',this)">
+<span class="sidebar-text">Payments</span>
+</li>
+
+<li onclick="showSection('emergency',this)">
+<span class="sidebar-text">🚨 Emergency</span>
+</li>
+
+</ul>
+
+<button class="logout-btn sidebar-text" onclick="logout()">Logout</button>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+
+<main class="main-content">
+
+<!-- DASHBOARD -->
+
+<section id="dashboard" class="section">
+
+<h1>Executive Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Doctors</h3>
+<p id="doctorCount"></p>
+</div>
+
+<div class="card">
+<h3>Total Patients</h3>
+<p id="patientCount"></p>
+</div>
+
+<div class="card">
+<h3>Total Revenue</h3>
+<p id="totalRevenue"></p>
+</div>
+
+</div>
+
+<h3>Doctor Appointment Distribution</h3>
+<canvas id="doctorBarChart"></canvas>
+
+<h3 style="margin-top:30px;">Monthly Revenue</h3>
+<canvas id="monthlyRevenueChart"></canvas>
+
+</section>
+
+<!-- DOCTORS -->
+
+<section id="doctors" class="section" style="display:none;">
+
+<h1>Doctor Management</h1>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="doctorTable"></tbody>
+
+</table>
+
+</section>
+
+<!-- PATIENTS -->
+
+<section id="patients" class="section" style="display:none;">
+
+<h1>Patient Management</h1>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="patientTable"></tbody>
+
+</table>
+
+</section>
+
+<!-- PAYMENTS -->
+
+<section id="payments" class="section" style="display:none;">
+
+<h1>Payment Details</h1>
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Doctor</th>
+<th>Patient</th>
+<th>Amount</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="paymentTable"></tbody>
+
+</table>
+
+</section>
+
+<!-- EMERGENCY -->
+
+<section id="emergency" class="section" style="display:none;">
+
+<h1>🚨 Emergency Alerts</h1>
+
+<div id="emergencyBox" style="
+background:red;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+display:none;
+">
+
+<h3>Emergency Case</h3>
+
+<p id="emergencyPatient"></p>
+<p id="emergencyTime"></p>
+<p id="emergencyDoctor"></p>
+
+<button onclick="deleteEmergency()" style="
+margin-top:15px;
+padding:10px 20px;
+border:none;
+background:black;
+color:white;
+border-radius:6px;
+cursor:pointer;
+">
+
+Delete Emergency
+
+</button>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script>
+
+let doctors = JSON.parse(localStorage.getItem("doctors")) || [];
+let appointments = JSON.parse(localStorage.getItem("appointments")) || [];
+
+/* SIDEBAR */
+function toggleSidebar(){
+document.getElementById("sidebar").classList.toggle("collapsed");
+}
+
+/* SECTION SWITCH */
+function showSection(id,element){
+
+document.querySelectorAll(".section").forEach(sec=>sec.style.display="none");
+
+document.getElementById(id).style.display="block";
+
+document.querySelectorAll(".sidebar li").forEach(li=>li.classList.remove("active"));
+
+element.classList.add("active");
+
+}
+
+/* SUMMARY CARDS */
+let uniquePatients=[...new Set(appointments.map(a=>a.patient))];
+let totalRevenue=appointments.reduce((sum,a)=>sum+(a.amount||0),0);
+
+document.getElementById("doctorCount").innerText=doctors.length;
+document.getElementById("patientCount").innerText=uniquePatients.length;
+document.getElementById("totalRevenue").innerText="₹"+totalRevenue;
+
+/* DOCTORS TABLE */
+function loadDoctors(){
+
+let table=document.getElementById("doctorTable");
+
+table.innerHTML="";
+
+doctors.forEach((doc,index)=>{
+
+table.innerHTML+=`
+<tr>
+<td>${doc.name}</td>
+<td><button onclick="deleteDoctor(${index})">Remove</button></td>
+</tr>`;
+
+});
+
+}
+
+loadDoctors();
+
+function deleteDoctor(index){
+
+doctors.splice(index,1);
+localStorage.setItem("doctors",JSON.stringify(doctors));
+location.reload();
+
+}
+
+/* PATIENTS TABLE */
+function loadPatients(){
+
+let table=document.getElementById("patientTable");
+
+table.innerHTML="";
+
+uniquePatients.forEach(name=>{
+
+table.innerHTML+=`
+<tr>
+<td>${name}</td>
+<td><button onclick="deletePatient('${name}')">Remove</button></td>
+</tr>`;
+
+});
+
+}
+
+loadPatients();
+
+function deletePatient(name){
+
+appointments=appointments.filter(a=>a.patient!==name);
+localStorage.setItem("appointments",JSON.stringify(appointments));
+location.reload();
+
+}
+
+/* PAYMENTS TABLE */
+function loadPayments(){
+
+let table=document.getElementById("paymentTable");
+
+table.innerHTML="";
+
+appointments.forEach((app,index)=>{
+
+table.innerHTML+=`
+
+<tr>
+<td>${app.date}</td>
+<td>${app.doctor}</td>
+<td>${app.patient}</td>
+<td>₹${app.amount}</td>
+<td>
+<button onclick="toggleStatus(${index})">
+${app.status}
+</button>
+</td>
+</tr>`;
+
+});
+
+}
+
+loadPayments();
+
+function toggleStatus(index){
+
+appointments[index].status=
+appointments[index].status==="Paid"?"Pending":"Paid";
+
+localStorage.setItem("appointments",JSON.stringify(appointments));
+
+loadPayments();
+
+}
+
+/* BAR CHART */
+let doctorCounts={};
+
+appointments.forEach(app=>{
+doctorCounts[app.doctor]=(doctorCounts[app.doctor]||0)+1;
+});
+
+new Chart(document.getElementById("doctorBarChart"),{
+
+type:"bar",
+
+data:{
+labels:Object.keys(doctorCounts),
+datasets:[{
+label:"Number of Appointments",
+data:Object.values(doctorCounts),
+backgroundColor:["#00ffff","#ff6384","#36a2eb","#ffcd56","#4bc0c0"]
+}]
+},
+
+options:{
+responsive:true,
+scales:{y:{beginAtZero:true}}
+}
+
+});
+
+/* MONTHLY REVENUE */
+let monthlyRevenue={};
+
+appointments.forEach(app=>{
+let month=app.date.slice(0,7);
+monthlyRevenue[month]=(monthlyRevenue[month]||0)+(app.amount||0);
+});
+
+new Chart(document.getElementById("monthlyRevenueChart"),{
+
+type:"line",
+
+data:{
+labels:Object.keys(monthlyRevenue),
+datasets:[{
+label:"Revenue",
+data:Object.values(monthlyRevenue),
+borderColor:"#00ff99",
+fill:false
+}]
+}
+
+});
+
+/* EMERGENCY MONITOR */
+function checkEmergency(){
+
+let data=JSON.parse(localStorage.getItem("emergencyAlert"));
+
+if(!data) return;
+
+let box=document.getElementById("emergencyBox");
+
+box.style.display="block";
+
+document.getElementById("emergencyPatient").innerText=
+"Patient : "+data.patient;
+
+document.getElementById("emergencyTime").innerText=
+"Time : "+data.time;
+
+if(data.status==="waiting"){
+document.getElementById("emergencyDoctor").innerText=
+"Doctor : Waiting for doctor...";
+}
+
+if(data.status==="taken"){
+document.getElementById("emergencyDoctor").innerText=
+"Accepted by : "+data.doctor;
+}
+
+}
+
+setInterval(checkEmergency,2000);
+
+/* DELETE EMERGENCY */
+function deleteEmergency(){
+
+if(confirm("Delete emergency alert?")){
+
+localStorage.removeItem("emergencyAlert");
+
+document.getElementById("emergencyBox").style.display="none";
+
+alert("Emergency Deleted");
+
+}
+
+}
+
+/* LOGOUT */
+function logout(){
+window.location.href="login.html";
+}
+
+</script>
+
+</body>
+</html>

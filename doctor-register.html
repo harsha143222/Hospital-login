@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Registration</title>
+
+    <!-- Main Design -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Bubble Glass Design -->
+    <link rel="stylesheet" href="style2.css">
+    
+
+    
+</head>
+
+<body>
+
+    <!-- Bubble Background -->
+    <div class="bubble-area"></div>
+
+    <!-- Register Box -->
+    <div class="box">
+
+        <!-- Logo -->
+        <img src="logo.prg.png" class="logo">
+
+<h2>Doctor Registration</h2>
+
+<input type="text" id="newName" placeholder="Doctor Name"><br><br>
+<input type="text" id="newDepartment" placeholder="Department"><br><br>
+<input type="text" id="newExperience" placeholder="Experience"><br><br>
+<input type="password" id="newPassword" placeholder="Password"><br><br>
+
+<input type="file" id="newImage" accept="image/*"><br><br>
+
+<button onclick="registerDoctor()">Register</button>
+<script src="bubble.js"></script>
+
+<script>
+function registerDoctor() {
+
+    const name = document.getElementById("newName");
+    const department = document.getElementById("newDepartment");
+    const experience = document.getElementById("newExperience");
+    const password = document.getElementById("newPassword");
+    const imageInput = document.getElementById("newImage");
+
+    if (!name || !department || !experience || !password || !imageInput) {
+        alert("HTML ID mismatch. Check IDs.");
+        return;
+    }
+
+    if (!name.value || !department.value || !experience.value || !password.value || imageInput.files.length === 0) {
+        alert("Fill all fields and upload image");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+
+        let doctors = JSON.parse(localStorage.getItem("doctors")) || [];
+
+        doctors.push({
+            name: name.value,
+            department: department.value,
+            experience: experience.value,
+            password: password.value,
+            image: e.target.result
+        });
+
+        localStorage.setItem("doctors", JSON.stringify(doctors));
+
+        alert("Doctor Registered Successfully!");
+        window.location.href = "login.html";
+    };
+
+    reader.readAsDataURL(imageInput.files[0]);
+}
+</script>
+
+</body>
+</html>

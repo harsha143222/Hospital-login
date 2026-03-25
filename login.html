@@ -1,0 +1,60 @@
+!DOCTYPE html>
+<html>
+<head>
+    <title>Hospital Login</title>
+
+    <!-- Main Design -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Bubble Animation Design -->
+    <link rel="stylesheet" href="style2.css">
+</head>
+
+<body>
+
+    <!-- Bubble Background --> 
+    <div class="bubble-area"></div>
+
+    <!-- Login Box -->
+    <div class="box">
+
+        <!-- Logo -->
+        <img src="logo.jpg" class="logo">
+
+        <h2>Hospital Login</h2>
+
+        <select id="role" onchange="togglePassword()">
+            <option value="">Select Role</option>
+            <option value="doctor">Doctor</option>
+            <option value="patient">Patient</option>
+            <option value="chairman">Chairman</option>
+        </select>
+
+        <input type="text" id="username" placeholder="Enter Name">
+        <input type="password" id="password" placeholder="Enter Password">
+
+        <button onclick="login()">Login</button>
+
+        <!-- Register Link -->
+        <p style="margin-top:10px;">
+            <a href="doctor-register.html" style="color:blue;">
+                <button style="background:#0077b6; color:white; border:none; padding:8px 12px; border-radius:5px;">Register New Doctor</button>
+            </a>
+        </p>
+        
+    <button onclick="goEmergency()" 
+style="background:red;color:white;padding:10px;border:none;border-radius:5px;margin-top:10px;">
+🚨 Emergency
+</button>
+
+    </div>
+    
+
+    <!-- Login Script -->
+    <script src="script.js"></script>
+
+    <!-- Bubble Script -->
+    <script src="bubble.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Patient Appointment</title>
+    <link rel="stylesheet" href="patient.css">
+</head>
+<body>
+
+<div class="container">
+
+```
+<h1>Book Appointment</h1>
+
+<!-- Doctor List -->
+<div class="doctor-list" id="doctorList"></div>
+
+<!-- Doctor Details -->
+<div class="doctor-details" id="doctorDetails" style="display:none;">
+
+    <div class="left-box">
+        <img id="doctorImage" class="doctor-img">
+        <h2 id="doctorName"></h2>
+        <p id="doctorDept"></p>
+        <p id="doctorExp"></p>
+    </div>
+
+    <div class="right-box">
+
+        <h3>Select Date</h3>
+        <input type="date" id="appointmentDate"><br><br>
+
+        <!-- TIME SLOT ADDED -->
+        <h3>Select Time Slot</h3>
+        <select id="appointmentTime">
+            <option value="">Select Time</option>
+            <option>09:00 AM</option>
+            <option>10:00 AM</option>
+            <option>11:00 AM</option>
+            <option>12:00 PM</option>
+            <option>02:00 PM</option>
+            <option>03:00 PM</option>
+            <option>04:00 PM</option>
+        </select><br><br>
+
+        <div id="summaryBox"></div>
+
+        <button onclick="showPayment()">Proceed to Payment</button>
+
+        <!-- Payment Section -->
+        <div id="paymentSection" style="display:none; margin-top:15px;">
+
+            <h3>Payment Details</h3>
+
+            <input type="text" id="cardNumber" placeholder="Card Number"><br><br>
+            <input type="text" id="cardName" placeholder="Card Holder Name"><br><br>
+            <input type="password" id="cvv" placeholder="CVV"><br><br>
+
+            <p><b>Consultation Fee: ₹500</b></p>
+
+            <button onclick="submitAppointment()">Pay & Book</button>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<script src="patient.js"></script>
+
+</body>
+</html>

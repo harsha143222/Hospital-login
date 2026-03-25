@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Hospital System</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#2b0000;
+animation:bgBlink 1s infinite alternate;
+color:white;
+}
+
+@keyframes bgBlink{
+0%{background:#2b0000;}
+100%{background:#000000;}
+}
+
+.box{
+background:rgba(0,0,0,0.75);
+padding:30px;
+border-radius:12px;
+width:350px;
+text-align:center;
+box-shadow:0 0 25px red;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:10px 0;
+border:none;
+border-radius:6px;
+}
+
+button{
+width:100%;
+padding:10px;
+background:red;
+border:none;
+color:white;
+font-size:16px;
+cursor:pointer;
+border-radius:6px;
+}
+
+button:hover{
+background:darkred;
+}
+
+h2{
+text-align:center;
+}
+
+#appointmentPage,#chairmanPage{
+display:none;
+}
+
+.appointmentCard{
+background:#111;
+padding:10px;
+margin:10px;
+border-radius:8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+
+<div id="loginPage" class="box">
+
+<h2>🏥 Hospital Login</h2>
+
+<select id="role">
+<option value="patient">Patient</option>
+<option value="chairman">Chairman</option>
+</select>
+
+<input type="text" id="phone" placeholder="Phone">
+
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+</div>
+
+
+<!-- PATIENT APPOINTMENT PAGE -->
+
+<div id="appointmentPage" class="box">
+
+<h2>📅 Book Appointment</h2>
+
+<input type="text" id="patientName" placeholder="Patient Name">
+
+<select id="doctor">
+<option value="">Select Doctor</option>
+<option>Dr Sharma</option>
+<option>Dr Reddy</option>
+<option>Dr Kumar</option>
+<option>Dr Priya</option>
+</select>
+
+<input type="date" id="date">
+
+<input type="time" id="time">
+
+<button onclick="bookAppointment()">Book Appointment</button>
+
+<p id="msg"></p>
+
+</div>
+
+
+<!-- CHAIRMAN DASHBOARD -->
+
+<div id="chairmanPage" class="box">
+
+<h2>📊 Chairman Dashboard</h2>
+
+<h3>Appointments</h3>
+
+<div id="appointmentList"></div>
+
+</div>
+
+
+<script>
+
+/* LOGIN */
+
+function login(){
+
+let role=document.getElementById("role").value
+let phone=document.getElementById("phone").value
+let password=document.getElementById("password").value
+
+if(role=="patient"){
+
+document.getElementById("loginPage").style.display="none"
+document.getElementById("appointmentPage").style.display="block"
+
+}
+
+else if(role=="chairman"){
+
+if(phone=="admin" && password=="admin"){
+
+document.getElementById("loginPage").style.display="none"
+document.getElementById("chairmanPage").style.display="block"
+
+loadAppointments()
+
+}else{
+alert("Chairman login incorrect")
+}
+
+}
+
+}
+
+
+/* BOOK APPOINTMENT */
+
+function bookAppointment(){
+
+let name=document.getElementById("patientName").value
+let doctor=document.getElementById("doctor").value
+let date=document.getElementById("date").value
+let time=document.getElementById("time").value
+
+if(name=="" || doctor=="" || date=="" || time==""){
+alert("Fill all fields")
+return
+}
+
+let appointment={
+name:name,
+doctor:doctor,
+date:date,
+time:time
+}
+
+let appointments=JSON.parse(localStorage.getItem("appointments")) || []
+
+appointments.push(appointment)
+
+localStorage.setItem("appointments",JSON.stringify(appointments))
+
+document.getElementById("msg").innerText="Appointment Booked"
+
+}
+
+
+/* LOAD APPOINTMENTS FOR CHAIRMAN */
+
+function loadAppointments(){
+
+let appointments=JSON.parse(localStorage.getItem("appointments")) || []
+
+let list=document.getElementById("appointmentList")
+
+list.innerHTML=""
+
+appointments.forEach(a=>{
+
+let div=document.createElement("div")
+
+div.className="appointmentCard"
+
+div.innerHTML=`
+Patient: ${a.name}<br>
+Doctor: ${a.doctor}<br>
+Date: ${a.date}<br>
+Time: ${a.time}
+`
+
+list.appendChild(div)
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
